@@ -18,7 +18,7 @@
 #include <sbi_utils/serial/uart8250.h>
 #include <sbi_utils/timer/aclint_mtimer.h>
 
-#define PLATFORM_PLIC_ADDR		0x0000000
+#define PLATFORM_PLIC_ADDR		0x11200000
 #define PLATFORM_PLIC_NUM_SOURCES	0
 #define PLATFORM_HART_COUNT		1
 #define PLATFORM_CLINT_ADDR		0x11000000
