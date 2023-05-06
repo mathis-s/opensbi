@@ -6,7 +6,8 @@
 # Authors:
 #   Anup Patel <anup.patel@wdc.com>
 #
-
+FW_OPTIONS ?= 0x2
+PLATFORM_RISCV_ISA ?= rv32imac_zicsr_zifencei_zba_zbb
 # Select Make Options:
 # o  Do not use make's built-in rules
 # o  Do not print "Entering directory ...";
