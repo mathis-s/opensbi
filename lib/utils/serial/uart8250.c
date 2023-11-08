@@ -37,6 +37,13 @@
 #define UART_LSR_DR		0x01	/* Receiver data ready */
 #define UART_LSR_BRK_ERROR_BITS	0x1E	/* BI, FE, PE, OE bits */
 
+#define UARTLITE_SEND_OFFSET 4
+#define UARTLITE_RECV_OFFSET 0
+#define UARTLITE_STAT_OFFSET 8
+
+#define UARTLITE_STAT_RREADY 1
+#define UARTLITE_STAT_SWAIT 8
+
 /* clang-format on */
 
 static volatile char *uart8250_base;
@@ -71,21 +78,21 @@ static void set_reg(u32 num, u32 val)
 
 static void uart8250_putc(char ch)
 {
-	while ((get_reg(UART_LSR_OFFSET) & UART_LSR_THRE) == 0)
+	while ((get_reg(UARTLITE_STAT_OFFSET) & UARTLITE_STAT_SWAIT))
 		;
 
-	set_reg(UART_THR_OFFSET, ch);
+	set_reg(UARTLITE_SEND_OFFSET, ch);
 }
 
 static int uart8250_getc(void)
 {
-	if (get_reg(UART_LSR_OFFSET) & UART_LSR_DR)
-		return get_reg(UART_RBR_OFFSET);
+	if (get_reg(UARTLITE_STAT_OFFSET) & UARTLITE_STAT_RREADY)
+		return get_reg(UARTLITE_RECV_OFFSET);
 	return -1;
 }
 
 static struct sbi_console_device uart8250_console = {
-	.name = "uart8250",
+	.name = "uartlite",
 	.console_putc = uart8250_putc,
 	.console_getc = uart8250_getc
 };
@@ -100,7 +107,8 @@ int uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
 	uart8250_reg_width = reg_width;
 	uart8250_in_freq   = in_freq;
 	uart8250_baudrate  = baudrate;
-
+    
+    #if 0
 	if (uart8250_baudrate) {
 		bdiv = (uart8250_in_freq + 8 * uart8250_baudrate) /
 		       (16 * uart8250_baudrate);
@@ -130,6 +138,7 @@ int uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
 	get_reg(UART_RBR_OFFSET);
 	/* Set scratchpad */
 	set_reg(UART_SCR_OFFSET, 0x00);
+    #endif
 
 	sbi_console_set_device(&uart8250_console);
 
